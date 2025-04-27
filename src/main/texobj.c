@@ -611,6 +611,8 @@ _mesa_test_texobj_completeness(const GLcontext *ctx,
  */
 _glthread_DECLARE_STATIC_MUTEX(GenTexturesLock);
 
+int GenTexturesLockInit = 0;
+
 /**
  * Generate texture names.
  *
@@ -630,6 +632,11 @@ _mesa_GenTextures(GLsizei n, GLuint *textures)
     GLuint first;
     GLint i;
     ASSERT_OUTSIDE_BEGIN_END(ctx);
+
+    if(!GenTexturesLockInit){
+	GenTexturesLockInit = 1;
+	_glthread_INIT_MUTEX(GenTexturesLock);
+    }
 
     if (n < 0) {
 	_mesa_error(ctx, GL_INVALID_VALUE, "glGenTextures");

@@ -333,6 +333,8 @@ _mesa_destroy_visual(GLvisual *vis)
  */
 _glthread_DECLARE_STATIC_MUTEX(OneTimeLock);
 
+int OneTimeLockInit = 0;
+
 /**
  * Calls all the various one-time-init functions in Mesa.
  *
@@ -347,6 +349,10 @@ one_time_init(GLcontext *ctx)
 {
     static GLboolean alreadyCalled = GL_FALSE;
     (void) ctx;
+    if(!OneTimeLockInit){
+	OneTimeLockInit = 1;
+	_glthread_INIT_MUTEX(OneTimeLock);
+    }
     _glthread_LOCK_MUTEX(OneTimeLock);
     if (!alreadyCalled) {
 	GLuint i;
@@ -1091,6 +1097,7 @@ _mesa_initialize_context(GLcontext *ctx,
 	    return GL_FALSE;
 	}
     }
+
     _glthread_LOCK_MUTEX(ctx->Shared->Mutex);
     ctx->Shared->RefCount++;
     _glthread_UNLOCK_MUTEX(ctx->Shared->Mutex);

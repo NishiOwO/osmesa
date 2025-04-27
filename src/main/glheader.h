@@ -60,7 +60,7 @@
 /* Get typedefs for uintptr_t and friends */
 #include <stdint.h>
 #if defined(_WIN32)
-#  include <BaseTsd.h>
+#  include <basetsd.h>
 #endif
 #include <inttypes.h>
 

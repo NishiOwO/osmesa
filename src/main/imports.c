@@ -474,7 +474,7 @@ _mesa_inv_sqrtf(float n)
 int
 _mesa_ffs(int i)
 {
-#if (defined(_WIN32) && !defined(__MINGW32__) ) || defined(__IBMC__) || defined(__IBMCPP__)
+#if (defined(_WIN32)) || defined(__IBMC__) || defined(__IBMCPP__)
     register int bit = 0;
     if (i != 0) {
 	if ((i & 0xffff) == 0) {
@@ -510,7 +510,7 @@ _mesa_ffs(int i)
  */
 int
 #ifdef __MINGW32__
-_mesa_ffsll(long val)
+_mesa_ffsll(long long val)
 #else
 _mesa_ffsll(long long val)
 #endif

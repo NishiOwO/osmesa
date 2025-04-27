@@ -524,7 +524,7 @@ _mesa_ffs(int i);
 
 extern int
 #ifdef __MINGW32__
-_mesa_ffsll(long i);
+_mesa_ffsll(long long i);
 #else
 _mesa_ffsll(long long i);
 #endif
