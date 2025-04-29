@@ -41,10 +41,10 @@
 
 /*void triangle( GLcontext *ctx, GLuint v0, GLuint v1, GLuint v2, GLuint pv )*/
 {
-    const SWcontext *swrast = SWRAST_CONTEXT(ctx);
-    const GLfloat *p0 = v0->win;
-    const GLfloat *p1 = v1->win;
-    const GLfloat *p2 = v2->win;
+    const SWcontext *swrast;
+    const GLfloat *p0;
+    const GLfloat *p1;
+    const GLfloat *p2;
     const SWvertex *vMin, *vMid, *vMax;
     GLint iyMin, iyMax;
     GLfloat yMin, yMax;
@@ -77,6 +77,12 @@
 
     SWspan span;
     int i, j;
+
+    swrast = SWRAST_CONTEXT(ctx);
+    p0 = v0->win;
+    p1 = v1->win;
+    p2 = v2->win;
+
     for (i = 0; i < FRAG_ATTRIB_MAX; i++) {
 	for (j = 0; j < 4; j++) {
 	    span.attrStart[i][j] = 0;
