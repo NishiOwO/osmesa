@@ -56,17 +56,17 @@
 #if CHAN_BITS == 8
 typedef GLubyte GLchan;
 #define CHAN_MAX 255
-#define CHAN_MAXF 255.0F
+#define CHAN_MAXF 255.0f
 #define CHAN_TYPE GL_UNSIGNED_BYTE
 #elif CHAN_BITS == 16
 typedef GLushort GLchan;
 #define CHAN_MAX 65535
-#define CHAN_MAXF 65535.0F
+#define CHAN_MAXF 65535.0f
 #define CHAN_TYPE GL_UNSIGNED_SHORT
 #elif CHAN_BITS == 32
 typedef GLfloat GLchan;
 #define CHAN_MAX 1.0
-#define CHAN_MAXF 1.0F
+#define CHAN_MAXF 1.0f
 #define CHAN_TYPE GL_FLOAT
 #else
 #error "illegal number of color channel bits"
@@ -111,7 +111,7 @@ typedef int GLfixed;
 #define FixedToUns(X)   (((unsigned int)(X)) >> FIXED_SHIFT)
 #define FixedCeil(X)    (((X) + FIXED_ONE - FIXED_EPSILON) & FIXED_INT_MASK)
 #define FixedFloor(X)   ((X) & FIXED_INT_MASK)
-#define FixedToFloat(X) ((X) * (1.0F / FIXED_SCALE))
+#define FixedToFloat(X) ((X) * (1.0f / FIXED_SCALE))
 #define PosFloatToFixed(X)      FloatToFixed(X)
 #define SignedFloatToFixed(X)   FloatToFixed(X)
 
