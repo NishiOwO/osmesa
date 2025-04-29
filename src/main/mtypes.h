@@ -2988,11 +2988,16 @@ struct __GLcontextRec {
 /** The string names for GL_POINT, GL_LINE_LOOP, etc */
 extern const char *_mesa_prim_name[GL_POLYGON+4];
 
+#ifdef _MSC_VER
+#define OSMESA_FUNCTION __FUNCTION__
+#else
+#define OSMESA_FUNCTION __func__
+#endif
 
 #ifdef DEBUG
 extern int MESA_VERBOSE;
 extern int MESA_DEBUG_FLAGS;
-# define MESA_FUNCTION __func__
+# define MESA_FUNCTION OSMESA_FUNCTION
 #else
 # define MESA_VERBOSE 0
 # define MESA_DEBUG_FLAGS 0
