@@ -281,16 +281,16 @@ static INLINE int GET_FLOAT_BITS(float x)
 /***
  *** IROUND: return (as an integer) float rounded to nearest integer
  ***/
-#define IROUND(f)  ((int) (((f) >= 0.0f) ? ((f) + 0.5f) : ((f) - 0.5f)))
+#define IROUND(x)  ((int) (((x) >= 0.0f) ? ((x) + 0.5f) : ((x) - 0.5f)))
 
 
 /***
  *** IROUND_POS: return (as an integer) positive float rounded to nearest int
  ***/
 #ifdef DEBUG
-#define IROUND_POS(f) (assert((f) >= 0.0f), IROUND(f))
+#define IROUND_POS(x) (assert((x) >= 0.0f), IROUND(x))
 #else
-#define IROUND_POS(f) (IROUND(f))
+#define IROUND_POS(x) (IROUND(x))
 #endif
 
 

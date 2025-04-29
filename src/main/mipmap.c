@@ -490,12 +490,13 @@ make_1d_mipmap(const struct gl_texture_format *format, GLint border,
 	       GLint srcWidth, const GLubyte *srcPtr,
 	       GLint dstWidth, GLubyte *dstPtr)
 {
+    GLint bpt;
+    const GLubyte *src;
+    GLubyte *dst;
     if (!srcPtr || !dstPtr)
 	return;
 
-    const GLint bpt = format->TexelBytes;
-    const GLubyte *src;
-    GLubyte *dst;
+    bpt = format->TexelBytes;
 
     /* skip the border pixel, if any */
     src = srcPtr + border * bpt;
