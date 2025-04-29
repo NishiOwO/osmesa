@@ -50,17 +50,7 @@
     GLfloat yMin, yMax;
     GLboolean ltor;
     GLfloat majDx, majDy;  /* major (i.e. long) edge dx and dy */
-
-    SWspan span;
-    int i, j;
-    for (i = 0; i < FRAG_ATTRIB_MAX; i++) {
-	for (j = 0; j < 4; j++) {
-	    span.attrStart[i][j] = 0;
-	    span.attrStepX[i][j] = 0;
-	    span.attrStepY[i][j] = 0;
-	}
-    }
-
+    GLfloat bf;
 #ifdef DO_Z
     GLfloat zPlane[4];
 #endif
@@ -84,7 +74,18 @@
     GLfloat uPlane[FRAG_ATTRIB_MAX][4];  /* texture R */
     GLfloat vPlane[FRAG_ATTRIB_MAX][4];  /* texture Q */
 #endif
-    GLfloat bf = SWRAST_CONTEXT(ctx)->_BackfaceCullSign;
+
+    SWspan span;
+    int i, j;
+    for (i = 0; i < FRAG_ATTRIB_MAX; i++) {
+	for (j = 0; j < 4; j++) {
+	    span.attrStart[i][j] = 0;
+	    span.attrStepX[i][j] = 0;
+	    span.attrStepY[i][j] = 0;
+	}
+    }
+
+    bf = SWRAST_CONTEXT(ctx)->_BackfaceCullSign;
 
     (void) swrast;
 
