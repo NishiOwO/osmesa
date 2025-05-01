@@ -29,9 +29,11 @@ int rgb(int r, int g, int b){
 void(__interrupt *old)();
 
 int quit = 0;
+int press = 0;
 
 void __interrupt key(){
 	unsigned char sc = inp(0x60);
+	press = 1;
 	if(sc == 1) quit = 1;
 	outp(0x20, 0x20);
 }
@@ -73,10 +75,20 @@ int main(){
 
 	printf("OSMesa DOS Demo\n");
 
+	buf = malloc(WIDTH * HEIGHT);
+	ctx = OSMesaCreateContext(OSMESA_RGB_332, NULL);
+	OSMesaMakeCurrent(ctx, (unsigned char*)buf, GL_UNSIGNED_BYTE, WIDTH, HEIGHT);
+
 	old = _dos_getvect(0x09);
 	_dos_setvect(0x09, key);
 
-	buf = malloc(WIDTH * HEIGHT);
+	printf("GL_RENDERER: %s\n", glGetString(GL_RENDERER));
+	printf("GL_VERSION: %s\n", glGetString(GL_VERSION));
+	printf("Press any key to continue... ");
+	fflush(stdout);
+	while(!press);
+	quit = 0;
+	press = 0;
 
 	regs.h.ah = 0x0f;
 	int386(0x10, &regs, &regs);
@@ -103,8 +115,6 @@ int main(){
 		int386(0x10, &regs, &regs);
 	}
 
-	ctx = OSMesaCreateContext(OSMESA_RGB_332, NULL);
-	OSMesaMakeCurrent(ctx, (unsigned char*)buf, GL_UNSIGNED_BYTE, WIDTH, HEIGHT);
 	while(!quit){
 		draw();
 		memcpy((unsigned char*)0xa0000, buf, WIDTH * HEIGHT);
