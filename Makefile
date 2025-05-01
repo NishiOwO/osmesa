@@ -36,6 +36,10 @@ else ifeq ($(TARGET),unix)
 CFLAGS += -DPTHREADS
 LIBS += -lpthread -lm
 DYLIB = .so
+else ifeq ($(TARGET),emscripten)
+CFLAGS += -DPTHREADS -pthread
+LDFLAGS += -pthread
+DYLIB = .so
 else
 # Unknown platform, but Watcom might know it...
 ifneq (,$(filter $(CC),owcc))
