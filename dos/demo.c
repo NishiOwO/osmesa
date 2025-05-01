@@ -1,3 +1,5 @@
+/* #define DO_SVGA */
+
 #include <stdio.h>
 #include <i86.h>
 #include <stdlib.h>
@@ -9,22 +11,13 @@
 
 OSMesaContext ctx;
 
+#ifdef DO_SVGA
+#define WIDTH 640
+#define HEIGHT 480
+#else
 #define WIDTH 320
 #define HEIGHT 200
-
-int rgb(int r, int g, int b){
-	int color = 0;
-
-	color += r * 7 / 255;
-	color = color << 3;
-
-	color += g * 7 / 255;
-	color = color << 3;
-
-	color += b * 3 / 255;
-
-	return color;
-}
+#endif
 
 void(__interrupt *old)();
 
@@ -53,11 +46,11 @@ void draw(void){
 	glRotatef(deg++, 0, 0, 1);
 	glBegin(GL_TRIANGLES);
 	glColor3f(1, 0, 0);
-		glVertex2f(0, -50);
+		glVertex2f(0, 50);
 	glColor3f(0, 1, 0);
-		glVertex2f(-50, 50);
+		glVertex2f(-50, -50);
 	glColor3f(0, 0, 1);
-		glVertex2f(50, 50);
+		glVertex2f(50, -50);
 	glEnd();
 
 	glMatrixMode(GL_MODELVIEW);
@@ -72,12 +65,31 @@ int main(){
 	int i;
 	int mode;
 	union REGS regs;
+	long buffer_size;
+	unsigned char* base = (unsigned char*)0xa0000;
+	long depth;
+#ifdef DO_SVGA
+	unsigned char svga[256];
+	unsigned short wgr;
+	unsigned short wseg;
+#endif
 
 	printf("OSMesa DOS Demo\n");
 
-	buf = malloc(WIDTH * HEIGHT);
+#ifdef DO_SVGA
+	buffer_size = WIDTH * HEIGHT * 4;
+	depth = 4;
+	buf = malloc(buffer_size);
+	ctx = OSMesaCreateContext(OSMESA_BGRA, NULL);
+	OSMesaMakeCurrent(ctx, (unsigned char*)buf, GL_UNSIGNED_BYTE, WIDTH, HEIGHT);
+#else
+	buffer_size = WIDTH * HEIGHT;
+	depth = 1;
+	buf = malloc(buffer_size);
 	ctx = OSMesaCreateContext(OSMESA_RGB_332, NULL);
 	OSMesaMakeCurrent(ctx, (unsigned char*)buf, GL_UNSIGNED_BYTE, WIDTH, HEIGHT);
+#endif
+	OSMesaPixelStore(OSMESA_Y_UP, 0);
 
 	old = _dos_getvect(0x09);
 	_dos_setvect(0x09, key);
@@ -94,11 +106,33 @@ int main(){
 	int386(0x10, &regs, &regs);
 	mode = regs.h.al;
 
+#ifdef DO_SVGA
+	regs.w.ax = 0x4f01;
+	regs.w.cx = 0x112;
+	regs.x.edi = (unsigned int)&svga[0];
+	int386(0x10, &regs, &regs);
+
+	if(svga[0] & (1 << 1)){
+		if(svga[0x19] == 15){
+			depth = 2;
+		}else{
+			depth = svga[0x19] / 8;
+		}
+	}
+
+	memcpy(&wgr, &svga[4], 2);
+	memcpy(&wseg, &svga[8], 2);
+
+	base = (unsigned char*)(wseg * 0x10);
+
+	regs.w.ax = 0x4f02;
+	regs.w.bx = 0x112;
+	int386(0x10, &regs, &regs);
+#else
 	regs.h.ah = 0;
 	regs.h.al = 0x13;
 	int386(0x10, &regs, &regs);
 
-	/* do stuff */
 	for(i = 0; i < 256; i++){
 		/* RRRGGGBB */
 		int r = (double)((i >> 5) & 7) / 7 * 255;
@@ -114,10 +148,52 @@ int main(){
 		regs.h.dh = (double)r / 255 * 0x3f;
 		int386(0x10, &regs, &regs);
 	}
+#endif
 
 	while(!quit){
+#ifdef DO_SVGA
+		long bsz = buffer_size / 4 * depth;
+		unsigned char* nbuf = malloc(bsz);
+		if(depth == 2){
+			unsigned short* b = (unsigned short*)nbuf;
+			for(i = 0; i < WIDTH * HEIGHT; i++){
+				unsigned char c[4];
+				memcpy(c, buf + i * 4, 4);
+				b[i] = 0;
+
+				b[i] += (c[2] * 32 / 255);
+				b[i] = b[i] << 5;
+
+				b[i] += (c[1] * 32 / 255);
+				b[i] = b[i] << 5;
+
+				b[i] += (c[0] * 32 / 255);
+			}
+		}else if(depth == 4){
+			memcpy(nbuf, buf, bsz);
+		}
+#endif
 		draw();
-		memcpy((unsigned char*)0xa0000, buf, WIDTH * HEIGHT);
+#ifdef DO_SVGA
+		i = 0;
+		while(bsz > 0){
+			long sz = bsz < (wgr * 1024) ? bsz : (wgr * 1024);
+
+			regs.w.ax = 0x4f05;
+			regs.h.bh = 0;
+			regs.h.bl = 0;
+			regs.w.dx = i;
+			int386(0x10, &regs, &regs);
+
+			memcpy(base, nbuf + i * wgr * 1024, sz);
+
+			i++;
+			bsz -= sz;
+		}
+		free(nbuf);
+#else
+		memcpy(base, buf, WIDTH * HEIGHT);
+#endif
 	}
 	OSMesaDestroyContext(ctx);
 
