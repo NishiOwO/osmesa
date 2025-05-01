@@ -1,4 +1,4 @@
-TARGET=dos4g
+TARGET=pmodew
 CC=owcc
 
 .PHONY: all clean ..
