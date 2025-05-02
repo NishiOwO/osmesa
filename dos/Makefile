@@ -1,4 +1,4 @@
-TARGET=dos32a
+TARGET=dos4g
 CC=owcc
 
 .PHONY: all clean ..
