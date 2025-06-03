@@ -17,7 +17,7 @@ AR = wlib
 LIB = .lib
 endif
 
-ifneq (,$(filter $(TARGET),windows nt win32))
+ifneq (,$(filter $(TARGET),windows nt win32 win32s))
 CFLAGS += -DWIN32_THREADS
 
 ifeq (,$(filter $(CC),owcc))
